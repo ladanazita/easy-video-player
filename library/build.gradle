@@ -30,8 +30,9 @@ android {
 }
 
 dependencies {
-    compile 'me.zhanghai.android.materialprogressbar:library:' + versions.materialProgressBar
-    compile 'com.android.support:appcompat-v7:' + versions.supportLib
+  compile 'me.zhanghai.android.materialprogressbar:library:' + versions.materialProgressBar
+  compile 'com.android.support:appcompat-v7:' + versions.supportLib
+  compile files('build/libs/appsdk.jar')
 }
 
 apply from: 'https://raw.githubusercontent.com/afollestad/aidanfollestad.com/master/android-lib-release.gradle'
