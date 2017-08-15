@@ -39,17 +39,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
     // Set the initialized instance as a globally accessible instance.
     Analytics.setSingletonInstance(analytics);
-    Analytics.with(this)
-        .track(
-            "Video Playback Started",
-            new Properties()
-                .putValue("assetId", 1234)
-                .putValue("adType", "pre-roll")
-                .putValue("totalLength", 120)
-                .putValue("videoPlayer", "youtube")
-                .putValue("sound", 80)
-                .putValue("bitrate", 40)
-                .putValue("fullScreen", true));
   }
 
   @Override

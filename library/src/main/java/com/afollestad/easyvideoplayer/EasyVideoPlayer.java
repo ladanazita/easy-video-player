@@ -577,6 +577,18 @@ public class EasyVideoPlayer extends FrameLayout
 
     Analytics.with(getContext())
         .track(
+            "Video Playback Started",
+            new Properties()
+                .putValue("assetId", 1234)
+                .putValue("adType", "pre-roll")
+                .putValue("totalLength", 120)
+                .putValue("videoPlayer", "youtube")
+                .putValue("sound", 80)
+                .putValue("bitrate", 40)
+                .putValue("fullScreen", true));
+
+    Analytics.with(getContext())
+        .track(
             "Video Content Started",
             new Properties()
                 .putValue("assetId", 123214)
