@@ -17,6 +17,8 @@ android {
         versionCode versions.publishVersionCode
         versionName versions.publishVersion
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+
     }
     buildTypes {
         release {
@@ -33,6 +35,7 @@ dependencies {
   compile 'me.zhanghai.android.materialprogressbar:library:' + versions.materialProgressBar
   compile 'com.android.support:appcompat-v7:' + versions.supportLib
   compile files('build/libs/appsdk.jar')
+  compile 'com.segment.analytics.android:analytics:4.3.0-RC2'
 }
 
 apply from: 'https://raw.githubusercontent.com/afollestad/aidanfollestad.com/master/android-lib-release.gradle'

@@ -12,6 +12,7 @@ android {
         versionCode versions.publishVersionCode
         versionName versions.publishVersion
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -21,11 +22,6 @@ android {
     }
     lintOptions {
         abortOnError false
-    }
-}
-allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
     }
 }
 
