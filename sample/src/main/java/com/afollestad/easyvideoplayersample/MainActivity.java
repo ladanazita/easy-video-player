@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.afollestad.easyvideoplayer.EasyVideoCallback;
 import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.nielsen.app.sdk.AppSdk;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
 import com.segment.analytics.android.integrations.nielsendcr.NielsenDCRIntegration;
@@ -35,8 +34,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
             .logLevel(Analytics.LogLevel.VERBOSE)
             .build();
 
-    AppSdk.setDebug('D');
-
     // Set the initialized instance as a globally accessible instance.
     Analytics.setSingletonInstance(analytics);
   }
@@ -44,8 +41,7 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
   @Override
   protected void onPause() {
     super.onPause();
-    if (isFinishing())
-      player.release();
+    if (isFinishing()) player.release();
     Analytics.with(this)
         .track(
             "Video Playback Paused",
