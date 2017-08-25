@@ -46,8 +46,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import com.segment.analytics.Analytics;
-import com.segment.analytics.Properties;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -537,18 +535,6 @@ public class EasyVideoPlayer extends FrameLayout
   @CheckResult
   @Override
   public boolean isPlaying() {
-    Analytics.with(getContext())
-        .track(
-            "Video Content Playing",
-            new Properties()
-                .putValue("assetId", 7890)
-                .putValue("adType", "post-roll")
-                .putValue("totalLength", 700)
-                .putValue("videoPlayer", "youtube")
-                .putValue("playbackPosition", 20)
-                .putValue("fullScreen", false)
-                .putValue("bitrate", 500)
-                .putValue("sound", 80));
     return mPlayer != null && mPlayer.isPlaying();
   }
 
@@ -574,34 +560,6 @@ public class EasyVideoPlayer extends FrameLayout
     if (mHandler == null) mHandler = new Handler();
     mHandler.post(mUpdateCounters);
     mBtnPlayPause.setImageDrawable(mPauseDrawable);
-
-    Analytics.with(getContext())
-        .track(
-            "Video Playback Started",
-            new Properties()
-                .putValue("assetId", 1234)
-                .putValue("adType", "pre-roll")
-                .putValue("totalLength", 120)
-                .putValue("videoPlayer", "youtube")
-                .putValue("sound", 80)
-                .putValue("bitrate", 40)
-                .putValue("fullScreen", true));
-
-    Analytics.with(getContext())
-        .track(
-            "Video Content Started",
-            new Properties()
-                .putValue("assetId", 123214)
-                .putValue("title", "Look Who's Purging Now")
-                .putValue("season", 2)
-                .putValue("episode", 9)
-                .putValue("genre", "cartoon")
-                .putValue("program", "Rick and Morty")
-                .putValue("channel", "cartoon network")
-                .putValue("publisher", "Turner Broadcasting System")
-                .putValue("fullEpisode", true)
-                .putValue("podId", "segment A")
-                .putValue("playbackPosition", 70));
   }
 
   @Override
@@ -627,18 +585,6 @@ public class EasyVideoPlayer extends FrameLayout
     if (mHandler == null) return;
     mHandler.removeCallbacks(mUpdateCounters);
     mBtnPlayPause.setImageDrawable(mPlayDrawable);
-    Analytics.with(getContext())
-        .track(
-            "Video Playback Paused",
-            new Properties()
-                .putValue("assetId", 1234)
-                .putValue("adType", "mid-roll")
-                .putValue("totalLength", 100)
-                .putValue("videoPlayer", "vimeo")
-                .putValue("playbackPosition", 10)
-                .putValue("fullScreen", true)
-                .putValue("bitrate", 50)
-                .putValue("sound", 80));
   }
 
   @Override
@@ -776,19 +722,6 @@ public class EasyVideoPlayer extends FrameLayout
       mCallback.onCompletion(this);
       if (mLoop) mCallback.onStarted(this);
     }
-
-    Analytics.with(getContext())
-        .track(
-            "Video Content Completed",
-            new Properties()
-                .putValue("assetId", 7890)
-                .putValue("adType", "post-roll")
-                .putValue("totalLength", 700)
-                .putValue("videoPlayer", "youtube")
-                .putValue("playbackPosition", 20)
-                .putValue("fullScreen", false)
-                .putValue("bitrate", 500)
-                .putValue("sound", 80));
   }
 
   @Override
@@ -1098,7 +1031,7 @@ public class EasyVideoPlayer extends FrameLayout
 
   private Drawable tintDrawable(@NonNull Drawable d, @ColorInt int color) {
     d = DrawableCompat.wrap(d.mutate());
-    DrawableCompat.setTint(d, color);
+    DrawableCompat.setTint(d, color );
     return d;
   }
 
