@@ -1031,7 +1031,7 @@ public class EasyVideoPlayer extends FrameLayout
 
   private Drawable tintDrawable(@NonNull Drawable d, @ColorInt int color) {
     d = DrawableCompat.wrap(d.mutate());
-    DrawableCompat.setTint(d, color );
+    DrawableCompat.setTint(d, color);
     return d;
   }
 

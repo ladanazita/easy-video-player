@@ -8,12 +8,10 @@ import android.widget.Toast;
 import com.afollestad.easyvideoplayer.EasyVideoCallback;
 import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.nielsen.app.sdk.AppSdk;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
-
 import com.segment.analytics.android.integrations.nielsendcr.NielsenDCRIntegration;
-import com.nielsen.app.sdk.AppSdk;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -29,24 +27,32 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
   private TimerTask monitorHeadPos;
 
   public void startPlayheadTimer() {
-    if (playheadTimer != null) { return; }
+    if (playheadTimer != null) {
+      return;
+    }
     playheadTimer = new Timer();
     final int currentPosition = player.getCurrentPosition();
+    final long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
+
     final int totalLength = player.getDuration();
+    final long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
 
     monitorHeadPos =
         new TimerTask() {
-          @Override public void run() {
+          @Override
+          public void run() {
             Analytics.with(player.getContext())
-                .track("Video Content Playing", new Properties()
-                    .putValue("assetId", metadata.get("assetId"))
-                    .putValue("adType", metadata.get("adType"))
-                    .putValue("totalLength", totalLength)
-                    .putValue("videoPlayer", metadata.get("videoPlayer"))
-                    .putValue("position", currentPosition)
-                    .putValue("fullScreen",  metadata.get("fullscreen"))
-                    .putValue("bitrate",  metadata.get("bitrate"))
-                    .putValue("sound", metadata.get("sound")));
+                .track(
+                    "Video Content Playing",
+                    new Properties()
+                        .putValue("assetId", metadata.get("assetId"))
+                        .putValue("adType", metadata.get("adType"))
+                        .putValue("totalLength", totalLengthInSeconds)
+                        .putValue("videoPlayer", metadata.get("videoPlayer"))
+                        .putValue("position", seconds)
+                        .putValue("fullScreen", metadata.get("fullscreen"))
+                        .putValue("bitrate", metadata.get("bitrate"))
+                        .putValue("sound", metadata.get("sound")));
           }
         };
     playheadTimer.schedule(monitorHeadPos, 0, TimeUnit.SECONDS.toMillis(10));
@@ -60,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     }
   }
 
-  private static final String TEST_URL = "https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4";
+  private static final String TEST_URL =
+      "https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     char debug = I.charAt(0);
     appSdk.setDebug(debug);
 
-
     player.setSource(Uri.parse(TEST_URL));
     metadata = new LinkedHashMap<>();
     metadata.put("assetId", 1234);
@@ -105,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     metadata.put("fullEpisode", true);
     metadata.put("podId", "segment A");
     metadata.put("livestream", false);
-
   }
 
   @Override
@@ -113,18 +118,22 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     super.onPause();
     if (isFinishing()) player.release();
     final int currentPosition = player.getCurrentPosition();
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
+
     final int totalLength = player.getDuration();
+    long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
     Analytics.with(this)
         .track(
             "Video Playback Paused",
             new Properties()
-                .putValue("assetId",  metadata.get("assetId"))
+                .putValue("assetId", metadata.get("assetId"))
                 .putValue("adType", metadata.get("adType"))
-                .putValue("totalLength", totalLength)
+                .putValue("totalLength", totalLengthInSeconds)
                 .putValue("videoPlayer", metadata.get("videoPlayer"))
-                .putValue("position", currentPosition)
+                .putValue("position", seconds)
                 .putValue("fullScreen", metadata.get("fullscreen"))
-                .putValue("bitrate",  metadata.get("bitrate"))
+                .putValue("bitrate", metadata.get("bitrate"))
                 .putValue("sound", metadata.get("sound")));
     player.pause();
     stopPlayheadTimer();
@@ -136,19 +145,22 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     if (player.isPlaying()) {
       startPlayheadTimer();
       final int totalLength = player.getDuration();
+      long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
       Analytics.with(this)
           .track(
               "Video Playback Started",
               new Properties()
-                  .putValue("assetId",  metadata.get("assetId"))
+                  .putValue("assetId", metadata.get("assetId"))
                   .putValue("adType", metadata.get("adType"))
-                  .putValue("totalLength", totalLength)
+                  .putValue("totalLength", totalLengthInSeconds)
                   .putValue("videoPlayer", metadata.get("videoPlayer"))
                   .putValue("sound", metadata.get("sound"))
-                  .putValue("bitrate",  metadata.get("bitrate"))
+                  .putValue("bitrate", metadata.get("bitrate"))
                   .putValue("fullScreen", metadata.get("fullscreen")));
 
       final int currentPosition = player.getCurrentPosition();
+      long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
       Analytics.with(this)
           .track(
               "Video Content Started",
@@ -163,15 +175,17 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
                   .putValue("publisher", metadata.get("publisher"))
                   .putValue("fullEpisode", metadata.get("fullEpisode"))
                   .putValue("podId", metadata.get("podId"))
-                  .putValue("position",currentPosition));
+                  .putValue("position", seconds));
     }
-
   }
 
   @Override
   public void onPaused(EasyVideoPlayer player) {
     final int currentPosition = player.getCurrentPosition();
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
     final int totalLength = player.getDuration();
+    long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
     stopPlayheadTimer();
     Analytics.with(this)
         .track(
@@ -179,9 +193,9 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
             new Properties()
                 .putValue("assetId", metadata.get("assetId"))
                 .putValue("adType", metadata.get("adType"))
-                .putValue("totalLength", totalLength)
+                .putValue("totalLength", totalLengthInSeconds)
                 .putValue("videoPlayer", metadata.get("videoPlayer"))
-                .putValue("position", currentPosition)
+                .putValue("position", seconds)
                 .putValue("fullScreen", metadata.get("fullscreen"))
                 .putValue("bitrate", metadata.get("bitrate"))
                 .putValue("sound", metadata.get("sound")));
@@ -218,18 +232,21 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
   @Override
   public void onCompletion(EasyVideoPlayer player) {
-  stopPlayheadTimer();
+    stopPlayheadTimer();
     final int currentPosition = player.getCurrentPosition();
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
     final int totalLength = player.getDuration();
+    long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
     Analytics.with(this)
         .track(
             "Video Content Completed",
             new Properties()
                 .putValue("assetId", metadata.get("assetId"))
                 .putValue("adType", metadata.get("adType"))
-                .putValue("totalLength", totalLength)
+                .putValue("totalLength", totalLengthInSeconds)
                 .putValue("videoPlayer", metadata.get("videoPlayer"))
-                .putValue("position", currentPosition)
+                .putValue("position", seconds)
                 .putValue("fullScreen", metadata.get("fullscreen"))
                 .putValue("bitrate", metadata.get("bitrate"))
                 .putValue("sound", metadata.get("sound")));
@@ -238,11 +255,17 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
   @Override
   public void onRetry(EasyVideoPlayer player, Uri source) {
     final int currentPosition = player.getCurrentPosition();
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
+
     final int totalLength = player.getDuration();
+    long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
     stopPlayheadTimer();
     player.stop();
     player.reset();
-    source = Uri.parse("https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4");
+    source =
+        Uri.parse(
+            "https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4");
     player.setSource(source);
     Toast.makeText(this, "Big Buck Bunny", Toast.LENGTH_SHORT).show();
 
@@ -263,19 +286,24 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     metadata.put("fullEpisode", true);
     metadata.put("podId", "segment A");
     metadata.put("livestream", false);
-    metadata.put("position", currentPosition);
-    metadata.put("totalLenght", totalLength);
-
+    metadata.put("position", seconds);
+    metadata.put("totalLenght", totalLengthInSeconds);
   }
 
   @Override
   public void onSubmit(EasyVideoPlayer player, Uri source) {
     final int currentPosition = player.getCurrentPosition();
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentPosition);
+
     final int totalLength = player.getDuration();
+    long totalLengthInSeconds = TimeUnit.MILLISECONDS.toSeconds(totalLength);
+
     stopPlayheadTimer();
     player.stop();
     player.reset();
-    source = Uri.parse("https://ia902606.us.archive.org/15/items/Popeye_Cooking_With_Gags_1954/Popeye_Cookin_with_Gags_512kb.mp4");
+    source =
+        Uri.parse(
+            "https://ia902606.us.archive.org/15/items/Popeye_Cooking_With_Gags_1954/Popeye_Cookin_with_Gags_512kb.mp4");
     player.setSource(source);
 
     metadata = new LinkedHashMap<>();
@@ -295,8 +323,8 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     metadata.put("fullEpisode", true);
     metadata.put("podId", "segment A");
     metadata.put("livestream", false);
-    metadata.put("position", currentPosition);
-    metadata.put("totalLenght", totalLength);
+    metadata.put("position", seconds);
+    metadata.put("totalLenght", totalLengthInSeconds);
   }
 
   @Override
