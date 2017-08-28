@@ -6,15 +6,14 @@
     android:layout_height="match_parent"
     app:evp_autoFullscreen="false"
     app:evp_autoPlay="false"
-    app:evp_customLabelText="Hello!"
+    app:evp_customLabelText="Switch Video"
     app:evp_disableControls="false"
     app:evp_hideControlsOnPlay="true"
-    app:evp_leftAction="restart"
+    app:evp_leftAction="retry"
+    app:evp_retryText="Big Buck Bunny"
     app:evp_pauseDrawable="@drawable/evp_action_pause"
     app:evp_playDrawable="@drawable/evp_action_play"
     app:evp_restartDrawable="@drawable/evp_action_restart"
-    app:evp_retryText="@string/evp_retry"
     app:evp_rightAction="submit"
-    app:evp_source="https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4"
-    app:evp_submitText="@string/evp_submit" >
+    app:evp_submitText="Popeye" >
 </com.afollestad.easyvideoplayer.EasyVideoPlayer>

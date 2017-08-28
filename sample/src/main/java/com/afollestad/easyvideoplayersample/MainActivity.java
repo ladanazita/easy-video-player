@@ -10,32 +10,43 @@ import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
-import com.segment.analytics.android.integrations.nielsendcr.NielsenDCRIntegration;
 
+import com.segment.analytics.android.integrations.nielsendcr.NielsenDCRIntegration;
+import com.nielsen.app.sdk.AppSdk;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements EasyVideoCallback {
 
+  Map metadata;
   private EasyVideoPlayer player;
+  private AppSdk appSdk;
   private Timer playheadTimer;
+  private TimerTask monitorHeadPos;
 
   public void startPlayheadTimer() {
+    if (playheadTimer != null) { return; }
     playheadTimer = new Timer();
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
 
-    TimerTask monitorHeadPos =
+    monitorHeadPos =
         new TimerTask() {
           @Override public void run() {
             Analytics.with(player.getContext())
-                .track("Video Content Playing", new Properties().putValue("assetId", 7890)
-                    .putValue("adType", "post-roll")
-                    .putValue("totalLength", player.getDuration())
-                    .putValue("videoPlayer", "youtube")
-                    .putValue("playbackPosition", player.getCurrentPosition())
-                    .putValue("fullScreen", false)
-                    .putValue("bitrate", 500)
-                    .putValue("sound", 80));
+                .track("Video Content Playing", new Properties()
+                    .putValue("assetId", metadata.get("assetId"))
+                    .putValue("adType", metadata.get("adType"))
+                    .putValue("totalLength", totalLength)
+                    .putValue("videoPlayer", metadata.get("videoPlayer"))
+                    .putValue("position", currentPosition)
+                    .putValue("fullScreen",  metadata.get("fullscreen"))
+                    .putValue("bitrate",  metadata.get("bitrate"))
+                    .putValue("sound", metadata.get("sound")));
           }
         };
     playheadTimer.schedule(monitorHeadPos, 0, TimeUnit.SECONDS.toMillis(10));
@@ -44,10 +55,12 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
   private void stopPlayheadTimer() {
     if (playheadTimer != null) {
       playheadTimer.cancel();
+      monitorHeadPos.cancel();
       playheadTimer = null;
     }
   }
 
+  private static final String TEST_URL = "https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     player = (EasyVideoPlayer) findViewById(R.id.player);
     assert player != null;
     player.setCallback(this);
-    // All further configuration is done from the XML layout.
+    // https://segment.com/ladanazita/sources/android_video_app/overview
     Analytics analytics =
         new Analytics.Builder(this, "QDjpO9jNyjJGAMnH55VlEpPgbOvSAcP9")
             .use(NielsenDCRIntegration.FACTORY)
@@ -69,24 +82,50 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
     // Set the initialized instance as a globally accessible instance.
     Analytics.setSingletonInstance(analytics);
+    String I = "I";
+    char debug = I.charAt(0);
+    appSdk.setDebug(debug);
+
+
+    player.setSource(Uri.parse(TEST_URL));
+    metadata = new LinkedHashMap<>();
+    metadata.put("assetId", 1234);
+    metadata.put("adType", "mid-roll");
+    metadata.put("videoPlayer", "vimeo");
+    metadata.put("fullScreen", true);
+    metadata.put("bitrate", 50);
+    metadata.put("sound", 80);
+    metadata.put("title", "Big Buck Bunny: Peach");
+    metadata.put("season", 2);
+    metadata.put("episode", 9);
+    metadata.put("genre", "cartoon");
+    metadata.put("program", "Big Buck Bunny");
+    metadata.put("channel", "Creative Commons");
+    metadata.put("publisher", "Blender Foundation");
+    metadata.put("fullEpisode", true);
+    metadata.put("podId", "segment A");
+    metadata.put("livestream", false);
+
   }
 
   @Override
   protected void onPause() {
     super.onPause();
     if (isFinishing()) player.release();
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
     Analytics.with(this)
         .track(
             "Video Playback Paused",
             new Properties()
-                .putValue("assetId", 1234)
-                .putValue("adType", "mid-roll")
-                .putValue("totalLength", player.getDuration())
-                .putValue("videoPlayer", "vimeo")
-                .putValue("playbackPosition", 10)
-                .putValue("fullScreen", true)
-                .putValue("bitrate", 50)
-                .putValue("sound", 80));
+                .putValue("assetId",  metadata.get("assetId"))
+                .putValue("adType", metadata.get("adType"))
+                .putValue("totalLength", totalLength)
+                .putValue("videoPlayer", metadata.get("videoPlayer"))
+                .putValue("position", currentPosition)
+                .putValue("fullScreen", metadata.get("fullscreen"))
+                .putValue("bitrate",  metadata.get("bitrate"))
+                .putValue("sound", metadata.get("sound")));
     player.pause();
     stopPlayheadTimer();
   }
@@ -96,52 +135,56 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     super.onStart();
     if (player.isPlaying()) {
       startPlayheadTimer();
+      final int totalLength = player.getDuration();
       Analytics.with(this)
           .track(
               "Video Playback Started",
               new Properties()
-                  .putValue("assetId", 1234)
-                  .putValue("adType", "pre-roll")
-                  .putValue("totalLength", player.getDuration())
-                  .putValue("videoPlayer", "youtube")
-                  .putValue("sound", 80)
-                  .putValue("bitrate", 40)
-                  .putValue("fullScreen", true));
+                  .putValue("assetId",  metadata.get("assetId"))
+                  .putValue("adType", metadata.get("adType"))
+                  .putValue("totalLength", totalLength)
+                  .putValue("videoPlayer", metadata.get("videoPlayer"))
+                  .putValue("sound", metadata.get("sound"))
+                  .putValue("bitrate",  metadata.get("bitrate"))
+                  .putValue("fullScreen", metadata.get("fullscreen")));
 
+      final int currentPosition = player.getCurrentPosition();
       Analytics.with(this)
           .track(
               "Video Content Started",
               new Properties()
-                  .putValue("assetId", 123214)
-                  .putValue("title", "Look Who's Purging Now")
-                  .putValue("season", 2)
-                  .putValue("episode", 9)
-                  .putValue("genre", "cartoon")
-                  .putValue("program", "Rick and Morty")
-                  .putValue("channel", "cartoon network")
-                  .putValue("publisher", "Turner Broadcasting System")
-                  .putValue("fullEpisode", true)
-                  .putValue("podId", "segment A")
-                  .putValue("playbackPosition", player.getCurrentPosition()));
+                  .putValue("assetId", metadata.get("assetId"))
+                  .putValue("title", metadata.get("title"))
+                  .putValue("season", metadata.get("season"))
+                  .putValue("episode", metadata.get("episode"))
+                  .putValue("genre", metadata.get("genre"))
+                  .putValue("program", metadata.get("program"))
+                  .putValue("channel", metadata.get("channel"))
+                  .putValue("publisher", metadata.get("publisher"))
+                  .putValue("fullEpisode", metadata.get("fullEpisode"))
+                  .putValue("podId", metadata.get("podId"))
+                  .putValue("position",currentPosition));
     }
 
   }
 
   @Override
   public void onPaused(EasyVideoPlayer player) {
-  stopPlayheadTimer();
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
+    stopPlayheadTimer();
     Analytics.with(this)
         .track(
             "Video Playback Paused",
             new Properties()
-                .putValue("assetId", 1234)
-                .putValue("adType", "mid-roll")
-                .putValue("totalLength", player.getDuration())
-                .putValue("videoPlayer", "vimeo")
-                .putValue("playbackPosition", player.getCurrentPosition())
-                .putValue("fullScreen", true)
-                .putValue("bitrate", 50)
-                .putValue("sound", 80));
+                .putValue("assetId", metadata.get("assetId"))
+                .putValue("adType", metadata.get("adType"))
+                .putValue("totalLength", totalLength)
+                .putValue("videoPlayer", metadata.get("videoPlayer"))
+                .putValue("position", currentPosition)
+                .putValue("fullScreen", metadata.get("fullscreen"))
+                .putValue("bitrate", metadata.get("bitrate"))
+                .putValue("sound", metadata.get("sound")));
   }
 
   @Override
@@ -176,29 +219,84 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
   @Override
   public void onCompletion(EasyVideoPlayer player) {
   stopPlayheadTimer();
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
     Analytics.with(this)
         .track(
             "Video Content Completed",
             new Properties()
-                .putValue("assetId", 7890)
-                .putValue("adType", "post-roll")
-                .putValue("totalLength", player.getDuration())
-                .putValue("videoPlayer", "youtube")
-                .putValue("playbackPosition", player.getCurrentPosition())
-                .putValue("fullScreen", false)
-                .putValue("bitrate", 500)
-                .putValue("sound", 80));
+                .putValue("assetId", metadata.get("assetId"))
+                .putValue("adType", metadata.get("adType"))
+                .putValue("totalLength", totalLength)
+                .putValue("videoPlayer", metadata.get("videoPlayer"))
+                .putValue("position", currentPosition)
+                .putValue("fullScreen", metadata.get("fullscreen"))
+                .putValue("bitrate", metadata.get("bitrate"))
+                .putValue("sound", metadata.get("sound")));
   }
 
   @Override
   public void onRetry(EasyVideoPlayer player, Uri source) {
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
     stopPlayheadTimer();
-    Toast.makeText(this, "Retry", Toast.LENGTH_SHORT).show();
+    player.stop();
+    player.reset();
+    source = Uri.parse("https://ia800201.us.archive.org/12/items/BigBuckBunny_328/BigBuckBunny_512kb.mp4");
+    player.setSource(source);
+    Toast.makeText(this, "Big Buck Bunny", Toast.LENGTH_SHORT).show();
+
+    metadata = new LinkedHashMap<>();
+    metadata.put("assetId", 1234);
+    metadata.put("adType", "mid-roll");
+    metadata.put("videoPlayer", "vimeo");
+    metadata.put("fullScreen", true);
+    metadata.put("bitrate", 50);
+    metadata.put("sound", 80);
+    metadata.put("title", "Big Buck Bunny: Peach");
+    metadata.put("season", 2);
+    metadata.put("episode", 9);
+    metadata.put("genre", "cartoon");
+    metadata.put("program", "Big Buck Bunny");
+    metadata.put("channel", "Creative Commons");
+    metadata.put("publisher", "Blender Foundation");
+    metadata.put("fullEpisode", true);
+    metadata.put("podId", "segment A");
+    metadata.put("livestream", false);
+    metadata.put("position", currentPosition);
+    metadata.put("totalLenght", totalLength);
+
   }
 
   @Override
   public void onSubmit(EasyVideoPlayer player, Uri source) {
-    Toast.makeText(this, "Submit", Toast.LENGTH_SHORT).show();
+    final int currentPosition = player.getCurrentPosition();
+    final int totalLength = player.getDuration();
+    stopPlayheadTimer();
+    player.stop();
+    player.reset();
+    source = Uri.parse("https://ia902606.us.archive.org/15/items/Popeye_Cooking_With_Gags_1954/Popeye_Cookin_with_Gags_512kb.mp4");
+    player.setSource(source);
+
+    metadata = new LinkedHashMap<>();
+    metadata.put("assetId", 5678);
+    metadata.put("adType", "post-roll");
+    metadata.put("videoPlayer", "mp4");
+    metadata.put("fullScreen", true);
+    metadata.put("bitrate", 10);
+    metadata.put("sound", 20);
+    metadata.put("title", "Cookin With Gags");
+    metadata.put("season", 2);
+    metadata.put("episode", 25);
+    metadata.put("genre", "cartoon");
+    metadata.put("program", "Popeye");
+    metadata.put("channel", "CBS");
+    metadata.put("publisher", "Time Warner");
+    metadata.put("fullEpisode", true);
+    metadata.put("podId", "segment A");
+    metadata.put("livestream", false);
+    metadata.put("position", currentPosition);
+    metadata.put("totalLenght", totalLength);
   }
 
   @Override
