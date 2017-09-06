@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
     // Set the initialized instance as a globally accessible instance.
     Analytics.setSingletonInstance(analytics);
-    String I = "I";
-    char debug = I.charAt(0);
+    String D = "D";
+    char debug = D.charAt(0);
     appSdk.setDebug(debug);
 
     player.setSource(Uri.parse(TEST_URL));
