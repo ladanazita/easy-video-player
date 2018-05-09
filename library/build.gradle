@@ -33,8 +33,11 @@ android {
 
 dependencies {
   compile 'me.zhanghai.android.materialprogressbar:library:' + versions.materialProgressBar
-  compile 'com.android.support:appcompat-v7:' + versions.supportLib
-  compile files('build/libs/appsdk.jar')
+  compile 'com.android.support:appcompat-v7:' +
+        versions.supportLib
   compile 'com.segment.analytics.android:analytics:4.3.0-RC2'
+  compile files('build/libs/omsdk-android-1.1.2-Segment.jar')
+  compile 'com.android.volley:volley:1.1.0'
+
 }
 

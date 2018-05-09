@@ -1,5 +1,7 @@
 package com.afollestad.easyvideoplayersample;
 
+import android.app.DownloadManager;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +10,19 @@ import android.widget.Toast;
 import com.afollestad.easyvideoplayer.EasyVideoCallback;
 import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.iab.omid.library.segment.Omid;
+import com.iab.omid.library.segment.adsession.Partner;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -85,8 +96,45 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
     // Set the initialized instance as a globally accessible instance.
     Analytics.setSingletonInstance(analytics);
-    String D = "D";
-    char debug = D.charAt(0);
+
+    // 1. Activate the SDK
+    Context context = getApplicationContext();
+    try {
+      boolean activated = Omid.activateWithOmidApiVersion(Omid.getVersion(), context);
+      if (!activated) {
+        Log.e("SDK failed to activate", "Handle appropriately");
+      }
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+    }
+
+    // 2. Fetch the OMID JS library.
+    String OMID_JS_SERVICE_URL = context.getString(R.string.omid_js_service);
+    StringRequest stringRequest = new StringRequest(Request.Method.GET, OMID_JS_SERVICE_URL,
+        new Response.Listener<String>() {
+          public String OMID_JS_SERVICE_CONTENT;
+
+          @Override
+          public void onResponse(String response) {
+            OMID_JS_SERVICE_CONTENT = response;
+          }
+        },
+        new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError error) {
+
+          }
+        });
+    RequestQueue queue = Volley.newRequestQueue(context);
+    queue.add(stringRequest);
+
+
+    // 3. Identify your integration.
+    try {
+      Partner partner = Partner.createPartner("Segment", "1.0.0");
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+    }
 
     player.setSource(Uri.parse(TEST_URL));
     metadata = new LinkedHashMap<>();
