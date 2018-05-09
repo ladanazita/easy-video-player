@@ -30,6 +30,5 @@ dependencies {
   compile project(':library')
   compile 'com.android.support:appcompat-v7:' + versions.supportLib
   compile 'com.afollestad.material-dialogs:core:' + versions.materialDialogs
-  compile 'com.github.segment-integrations:analytics-android-integration-nielsen-dcr:initial-implementation-SNAPSHOT'
   compile 'com.segment.analytics.android:analytics:4.3.0-RC2'
 }

@@ -38,4 +38,3 @@ dependencies {
   compile 'com.segment.analytics.android:analytics:4.3.0-RC2'
 }
 
-apply from: 'https://raw.githubusercontent.com/afollestad/aidanfollestad.com/master/android-lib-release.gradle'

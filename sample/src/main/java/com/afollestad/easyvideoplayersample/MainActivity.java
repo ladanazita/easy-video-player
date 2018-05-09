@@ -8,10 +8,8 @@ import android.widget.Toast;
 import com.afollestad.easyvideoplayer.EasyVideoCallback;
 import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.nielsen.app.sdk.AppSdk;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
-import com.segment.analytics.android.integrations.nielsendcr.NielsenDCRIntegration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -22,7 +20,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
 
   Map metadata;
   private EasyVideoPlayer player;
-  private AppSdk appSdk;
   private Timer playheadTimer;
   private TimerTask monitorHeadPos;
 
@@ -80,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     // https://segment.com/ladanazita/sources/android_video_app/overview
     Analytics analytics =
         new Analytics.Builder(this, "QDjpO9jNyjJGAMnH55VlEpPgbOvSAcP9")
-            .use(NielsenDCRIntegration.FACTORY)
             .flushQueueSize(1)
             .trackApplicationLifecycleEvents()
             .recordScreenViews()
@@ -91,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements EasyVideoCallback
     Analytics.setSingletonInstance(analytics);
     String D = "D";
     char debug = D.charAt(0);
-    appSdk.setDebug(debug);
 
     player.setSource(Uri.parse(TEST_URL));
     metadata = new LinkedHashMap<>();
